@@ -16,6 +16,7 @@
 * 各平台可执行文件：linux-bin.7z、macos-bin.7z、windows-bin.7z
 * 用于java的jni库：linux-jni.7z、macos-jni.7z、windows-jni.7z
 * 用于C的动态库：linux-clib.7z、macos-clib.7z、windows-clib.7z
+* C动态库调用范例:[RapidOcrOnnxLibTest](https://github.com/RapidAI/RapidOcrOnnxLibTest)
 * 注意：linux编译平台为ubuntu18.04，如果你的linux版本无法运行demo，请自行从源码编译依赖库和完整项目。
 
 ### 介绍
