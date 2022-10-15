@@ -1,0 +1,394 @@
+name: Builder
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  ubuntu1804:
+    runs-on: ubuntu-18.04
+
+    env:
+      ONNX_VERSION: 1.12.1
+      ONNX_PKG_NAME: onnxruntime-1.12.1-ubuntu1804-static
+      CV_VERSION: 4.6.0
+      CV_PKG_NAME: opencv-4.6.0-ubuntu1804
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 下载onnxruntime-static
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          wget https://github.com/RapidAI/OnnxruntimeBuilder/releases/download/${{ env.ONNX_VERSION }}/${{ env.ONNX_PKG_NAME }}.7z -O ${{ env.ONNX_PKG_NAME }}.7z
+          7z x ${{ env.ONNX_PKG_NAME }}.7z -aoa
+
+      # 下载opencv-static
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          wget https://github.com/RapidAI/OpenCVBuilder/releases/download/${{ env.CV_VERSION }}/${{ env.CV_PKG_NAME }}.7z -O ${{ env.CV_PKG_NAME }}.7z
+          7z x ${{ env.CV_PKG_NAME }}.7z -aoa
+
+      # 编译
+      - name: build
+        run: |
+          chmod a+x build-default.sh &&./build-default.sh
+
+      # 使用7z压缩
+      - name: 7zip
+        run: |
+          mkdir linux-bin
+          cp run-benchmark.sh linux-bin/run-benchmark.sh
+          cp run-test.sh linux-bin/run-test.sh
+          cp -r images linux-bin/images
+          mv Linux-BIN/install/bin linux-bin/Linux-BIN
+          7z a linux-bin.7z linux-bin
+          mkdir linux-jni
+          mv Linux-JNI/install linux-jni/Linux-JNI
+          7z a linux-jni.7z linux-jni
+          mkdir linux-clib
+          mv Linux-CLIB/install linux-clib/Linux-CLIB
+          7z a linux-clib.7z linux-clib
+
+      # 上传artifact
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-bin
+          path: linux-bin.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-jni
+          path: linux-jni.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-clib
+          path: linux-clib.7z
+
+  macos1015:
+    runs-on: macos-latest
+
+    env:
+      ONNX_VERSION: 1.12.1
+      ONNX_PKG_NAME: onnxruntime-1.12.1-macos1015-static
+      CV_VERSION: 4.6.0
+      CV_PKG_NAME: opencv-4.6.0-macos1015
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 安装openmp
+      - name: install openmp
+        run: |
+          brew install libomp
+
+      # 下载onnxruntime-static
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          wget https://github.com/RapidAI/OnnxruntimeBuilder/releases/download/${{ env.ONNX_VERSION }}/${{ env.ONNX_PKG_NAME }}.7z -O ${{ env.ONNX_PKG_NAME }}.7z
+          7z x ${{ env.ONNX_PKG_NAME }}.7z -aoa
+
+      # 下载opencv-static
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          wget https://github.com/RapidAI/OpenCVBuilder/releases/download/${{ env.CV_VERSION }}/${{ env.CV_PKG_NAME }}.7z -O ${{ env.CV_PKG_NAME }}.7z
+          7z x ${{ env.CV_PKG_NAME }}.7z -aoa
+
+      # 编译
+      - name: build
+        run: |
+          chmod a+x build-default.sh &&./build-default.sh
+
+      # 使用7z压缩
+      - name: 7zip
+        run: |
+          mkdir macos-bin
+          cp run-benchmark.sh macos-bin/run-benchmark.sh
+          cp run-test.sh macos-bin/run-test.sh
+          cp -r images macos-bin/images
+          mv Darwin-BIN/install/bin macos-bin/Darwin-BIN
+          7z a macos-bin.7z macos-bin
+          mkdir macos-jni
+          mv Darwin-JNI/install macos-jni/Darwin-JNI
+          7z a macos-jni.7z macos-jni
+          mkdir macos-clib
+          mv Darwin-CLIB/install macos-clib/Darwin-CLIB
+          7z a macos-clib.7z macos-clib
+
+      # 上传artifact
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-bin
+          path: macos-bin.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-jni
+          path: macos-jni.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-clib
+          path: macos-clib.7z
+
+  windows-vs2019:
+    runs-on: windows-2019
+
+    env:
+      ONNX_VERSION: 1.12.1
+      ONNX_PKG_NAME: onnxruntime-1.12.1-vs2019-static-mt
+      CV_VERSION: 4.6.0
+      CV_PKG_NAME: opencv-4.6.0-windows-vs2019-mt
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 下载onnxruntime-static
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          Invoke-WebRequest -Uri https://github.com/RapidAI/OnnxruntimeBuilder/releases/download/${{ env.ONNX_VERSION }}/${{ env.ONNX_PKG_NAME }}.7z -OutFile ${{ env.ONNX_PKG_NAME }}.7z
+          7z x ${{ env.ONNX_PKG_NAME }}.7z -aoa
+
+      # 下载opencv-static
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          Invoke-WebRequest -Uri https://github.com/RapidAI/OpenCVBuilder/releases/download/${{ env.CV_VERSION }}/${{ env.CV_PKG_NAME }}.7z -OutFile ${{ env.CV_PKG_NAME }}.7z
+          7z x ${{ env.CV_PKG_NAME }}.7z -aoa
+
+      # 编译
+      - name: build
+        run: |
+          ./build-default.bat
+
+      # 使用7z压缩
+      - name: 7zip
+        run: |
+          mkdir windows-bin
+          cp run-benchmark.bat windows-bin/run-benchmark.bat
+          cp run-test.bat windows-bin/run-test.bat
+          cp -r images windows-bin/images
+          mv win-BIN-x64/install/bin windows-bin/win-BIN-x64
+          mv win-BIN-Win32/install/bin windows-bin/win-BIN-Win32
+          7z a windows-bin.7z windows-bin
+          mkdir windows-jni
+          mv win-JNI-x64/install windows-jni/win-JNI-x64
+          mv win-JNI-Win32/install windows-jni/win-JNI-Win32
+          7z a windows-jni.7z windows-jni
+          mkdir windows-clib
+          mv win-CLIB-x64/install windows-clib/win-CLIB-x64
+          mv win-CLIB-Win32/install windows-clib/win-CLIB-Win32
+          7z a windows-clib.7z windows-clib
+
+      # 上传artifact
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-bin
+          path: windows-bin.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-jni
+          path: windows-jni.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-clib
+          path: windows-clib.7z
+
+  release:
+    needs: [ ubuntu1804, macos1015, windows-vs2019 ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 获取所有的git log和tag
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      # 获取git log 从 previousTag 到 lastTag
+      - name: Get git log
+        id: git-log
+        run: |
+          previousTag=$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+          lastTag=$(git describe --abbrev=0 --tags)
+          echo "previousTag:$previousTag ~ lastTag:$lastTag"
+          log=$(git log $previousTag..$lastTag --pretty=format:'- %cd %an: %s\n' --date=format:'%Y-%m-%d %H:%M:%S')
+          echo "$log"
+          echo "log_state="$log"" >> $GITHUB_ENV
+
+      # 创建Changelog文件 triggered by git tag push
+      - name: Generate Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo -e '${{ env.log_state }}' > Release.txt
+
+      # Cat Changelog triggered by git tag push
+      - name: Cat Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cat Release.txt
+
+      # 下载artifact
+      - name: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      # 查看artifact
+      - name: list artifact
+        run: |
+          tree artifacts
+
+      # 创建release
+      - name: create-release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body_path: Release.txt
+          draft: false
+          prerelease: false
+
+      - name: upload-linux-bin
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: linux-bin
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-linux-jni
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: linux-jni
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-linux-clib
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: linux-clib
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-macos-bin
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: macos-bin
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-macos-jni
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: macos-jni
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-macos-clib
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: macos-clib
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-windows-bin
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: windows-bin
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-windows-jni
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: windows-jni
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      - name: upload-windows-clib
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG_NAME: windows-clib
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: artifacts/${{ env.PKG_NAME }}/${{ env.PKG_NAME }}.7z
+          asset_name: ${{ env.PKG_NAME }}.7z
+          asset_content_type: application/x-7z-compressed
+
+      # 获取指定时区的时间
+      # https://github.com/marketplace/actions/get-time-action
+      - name: Get Time
+        id: time
+        uses: JantHsueh/get-time-action@master
+        with:
+          timeZone: 8
+
+      # 向钉钉发送消息
+      # https://github.com/marketplace/actions/web-request-action
+      - name: dingtalk
+        uses: satak/webrequest-action@master
+        with:
+          url: ${{ secrets.DINGTALK_WEBHOOK }}
+          method: POST
+          payload: '{"msgtype": "text", "text": {"content": "版本更新: ${{ github.repository }}-版本号: ${{ github.ref }} \n 编译时间： ${{ steps.time.outputs.time }} \n 距上个正式版的更新记录: \n${{ env.log_state }}"}}'
+          headers: '{"Content-Type": "application/json"}'
