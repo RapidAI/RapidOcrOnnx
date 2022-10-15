@@ -34,6 +34,7 @@
 * opencv 4.6.0
 * onnxruntime 1.12.1
 * windows支持mt版引用库
+* rec模型输入图片高度改为48
 
 ### 模型下载
 
