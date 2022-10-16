@@ -57,6 +57,9 @@ void CrnnNet::initModel(const std::string &pathStr, const std::string &keysPath)
         printf("The keys.txt file was not found\n");
         return;
     }
+    keys.insert(keys.begin(), "#");
+    keys.emplace_back(" ");
+    printf("total keys size(%lu)\n", keys.size());
 }
 
 template<class ForwardIterator>
@@ -78,7 +81,7 @@ TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, int h, i
 
         if (maxIndex > 0 && maxIndex < keySize && (!(i > 0 && maxIndex == lastIndex))) {
             scores.emplace_back(maxValue);
-            strRes.append(keys[maxIndex - 1]);
+            strRes.append(keys[maxIndex]);
         }
         lastIndex = maxIndex;
     }
