@@ -40,6 +40,11 @@
 
 * 修复：字典添加空格
 
+#### 2021-10-17 update
+
+* 修复：scoreToTextLine方法索引越界问题
+* Windows控制台编码修改为UTF8
+
 ### 模型下载
 
 整合好的范例工程自带了模型，在models文件夹中
@@ -78,6 +83,20 @@ RapidOcrOnnx/models
 1. cmd窗口左上角-属性
 2. 字体选项卡-选择除了“点阵字体”以外的TrueType字体,例如:Lucida Console、宋体
 3. 重新执行bat
+
+### Windows调试运行
+
+* 下载范例项目工程自带的引用库是Release版，不能用于调试运行
+* debug版的引用库未压缩时容量超过1GB，极限压缩后也超过了100MB，请自行编译或到群共享里寻找
+* debug版的引用库必须是md版
+* 把debug版的引用库替换到范例工程的对应文件夹
+* 双击generate-vs-project.bat，选择2)Debug，生成对应的build-win-vsxxx-xx文件夹
+* 进入生成的文件夹，打开RapidOcrOnnx.sln
+* 右边解决方案管理器，选中RapidOcrOnnx，右键->设为启动项目，并生成(查看输出log，确保生成成功)
+* 如果引用库是dll，需要把对应的dll文件，例onnxruntime.dll复制到build-win-vsxxx-xx文件夹\Debug，跟上一步生成的RapidOcrOnnx.exe放在一起
+* 右边解决方案管理器，选中RapidOcrOnnx，右键->属性->调试->命令参数->```--models ../models --det ch_PP-OCRv3_det_infer.onnx --cls ch_ppocr_mobile_v2.0_cls_infer.onnx --rec ch_PP-OCRv3_rec_infer.onnx --keys ppocr_keys_v1.txt --image ../images/1.jpg```
+* 工具栏，点击绿色三角号启动"本地Windows调试器"
+* 第一次运行的话，查看左下角，等待加载各dll符号，网络不好的话，要等挺久的
 
 ### 输入参数说明
 
