@@ -5,12 +5,8 @@ DbNet::DbNet() {}
 
 DbNet::~DbNet() {
     delete session;
-    for (auto name : inputNames) {
-        free(name);
-    }
-    for (auto name : outputNames) {
-        free(name);
-    }
+    inputNames.clear();
+    outputNames.clear();
 }
 
 void DbNet::setNumThread(int numOfThread) {
