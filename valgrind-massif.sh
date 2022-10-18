@@ -29,8 +29,8 @@ valgrind --tool=massif --pages-as-heap=yes \
 --numThread $NUM_THREADS \
 --padding 50 \
 --maxSideLen 1024 \
---boxScoreThresh 0.6 \
+--boxScoreThresh 0.5 \
 --boxThresh 0.3 \
---unClipRatio 2.0 \
+--unClipRatio 1.6 \
 --doAngle 1 \
 --mostAngle 1

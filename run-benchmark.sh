@@ -42,7 +42,7 @@ fi
 --maxSideLen 1024 \
 --boxScoreThresh 0.5 \
 --boxThresh 0.3 \
---unClipRatio 1.5 \
+--unClipRatio 1.6 \
 --doAngle 1 \
 --mostAngle 1 \
 --loopCount $LOOP_COUNT

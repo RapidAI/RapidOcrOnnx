@@ -35,7 +35,7 @@ SET EXE_PATH=%EXE_PATH%\install\bin
 --maxSideLen 1024 ^
 --boxScoreThresh 0.5 ^
 --boxThresh 0.3 ^
---unClipRatio 1.5 ^
+--unClipRatio 1.6 ^
 --doAngle 1 ^
 --mostAngle 1
 
