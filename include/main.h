@@ -37,11 +37,11 @@ const char *requiredMsg = "-d --models: models directory.\n" \
                           "-i --image: path of target image.\n\n";
 
 const char *optionalMsg = "-t --numThread: value of numThread(int), default: 4\n" \
-                          "-p --padding: value of padding(int), default: 0\n" \
+                          "-p --padding: value of padding(int), default: 50\n" \
                           "-s --maxSideLen: Long side of picture for resize(int), default: 1024\n" \
                           "-b --boxScoreThresh: value of boxScoreThresh(float), default: 0.5\n" \
                           "-o --boxThresh: value of boxThresh(float), default: 0.3\n" \
-                          "-u --unClipRatio: value of unClipRatio(float), default: 2.0\n" \
+                          "-u --unClipRatio: value of unClipRatio(float), default: 1.6\n" \
                           "-a --doAngle: Enable(1)/Disable(0) Angle Net, default: Enable\n" \
                           "-A --mostAngle: Enable(1)/Disable(0) Most Possible AngleIndex, default: Enable\n\n";
 
