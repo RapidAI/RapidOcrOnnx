@@ -6,7 +6,21 @@ AngleNet::AngleNet() {}
 
 AngleNet::~AngleNet() {
     delete session;
+    for (auto name : inputNames) {
+#ifdef _WIN32
+        _aligned_free(name);
+#else
+        free(name);
+#endif
+    }
     inputNames.clear();
+    for (auto name : outputNames) {
+#ifdef _WIN32
+        _aligned_free(name);
+#else
+        free(name);
+#endif
+    }
     outputNames.clear();
 }
 
