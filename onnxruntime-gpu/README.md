@@ -74,6 +74,11 @@ onnxruntime-gpu
 ### cuDNN下载
 
 * [cuDNN下载地址](https://developer.nvidia.com/rdp/cudnn-archive)
+* windows只需要把dll解压，跟编译好的exe放在一起即可
+* Linux需要把cudnn解压缩到一个文件夹(例如/opt/cudnn)，然后把路径加到LD_LIBRARY_PATH
+* 安装的cuda也必须把路径(例如/usr/local/cuda-11.4/lib64)加到LD_LIBRARY_PATH
+```export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cudnn:/usr/local/cuda-11.4/lib64```
+* 或者添加上面的路径到/etc/ld.so.conf，并以root权限运行ldconfig
 
 ### CUDA下载
 
