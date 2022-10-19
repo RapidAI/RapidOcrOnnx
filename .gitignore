@@ -136,7 +136,11 @@ cmake-build-debug/
 build/
 build-lib/
 /models/*.onnx
-onnxruntime-shared/
+onnxruntime-gpu/*
+!onnxruntime-gpu/README.md
+!onnxruntime-gpu/OnnxRuntimeWrapper.cmake
+!onnxruntime-gpu/windows-x64/OnnxRuntimeConfig.cmake
+!onnxruntime-gpu/linux/OnnxRuntimeConfig.cmake
 onnxruntime-static/*
 !/onnxruntime-static/OnnxRuntimeWrapper.cmake
 opencv-static/*

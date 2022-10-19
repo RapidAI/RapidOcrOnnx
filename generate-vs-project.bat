@@ -33,6 +33,14 @@ if %flag% == 1 (
 else (set MT_ENABLED="False")
 echo.
 
+echo "onnxruntime: 1)CPU(默认), 2)GPU(cuda)"
+echo "注意：范例工程默认集成CPU版，CUDA版仅支持x64且需下载"
+set /p flag=
+if %flag% == 1 (set ONNX_TYPE="CPU")^
+else if %flag% == 2 (set ONNX_TYPE="CUDA")^
+else (echo 输入错误！Input Error!)
+echo.
+
 echo "请输入选项并回车: 0)ALL, 1)vs2019-x86, 2)vs2019-x64:"
 set /p flag=
 if %flag% == 0 (call :buildALL)^
@@ -61,8 +69,8 @@ popd
 GOTO:EOF
 
 :cmakeParams
-echo cmake -G "%~1" -A "%~2" -DOCR_OUTPUT=%BUILD_OUTPUT% -DOCR_BUILD_CRT=%MT_ENABLED% ..
-cmake -G "%~1" -A "%~2" -DOCR_OUTPUT=%BUILD_OUTPUT% -DOCR_BUILD_CRT=%MT_ENABLED% ..
+echo cmake -G "%~1" -A "%~2" -DOCR_OUTPUT=%BUILD_OUTPUT% -DOCR_BUILD_CRT=%MT_ENABLED% -DOCR_ONNX=%ONNX_TYPE% ..
+cmake -G "%~1" -A "%~2" -DOCR_OUTPUT=%BUILD_OUTPUT% -DOCR_BUILD_CRT=%MT_ENABLED% -DOCR_ONNX=%ONNX_TYPE% ..
 GOTO:EOF
 
 @ENDLOCAL

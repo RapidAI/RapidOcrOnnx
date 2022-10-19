@@ -33,6 +33,14 @@ if %flag% == 1 (
 else (set MT_ENABLED="False")
 echo.
 
+echo "onnxruntime: 1)CPU(默认), 2)GPU(cuda)"
+echo "注意：范例工程默认集成CPU版，CUDA版仅支持x64且需下载"
+set /p flag=
+if %flag% == 1 (set ONNX_TYPE="CPU")^
+else if %flag% == 2 (set ONNX_TYPE="CUDA")^
+else (echo 输入错误！Input Error!)
+echo.
+
 echo "VS版本: 1)vs2019-x64, 2)vs2019-x86"
 set BUILD_CMAKE_T="v142"
 set BUILD_CMAKE_A="x64"
@@ -48,13 +56,13 @@ else if %flag% == 2 (
 else (echo 输入错误！Input Error!)
 echo.
 
-mkdir win-%BUILD_OUTPUT%-%BUILD_CMAKE_A%
-pushd win-%BUILD_OUTPUT%-%BUILD_CMAKE_A%
+mkdir win-%BUILD_OUTPUT%-%ONNX_TYPE%-%BUILD_CMAKE_A%
+pushd win-%BUILD_OUTPUT%-%ONNX_TYPE%-%BUILD_CMAKE_A%
 
 cmake -T "%BUILD_CMAKE_T%,host=x64" -A %BUILD_CMAKE_A% ^
   -DCMAKE_INSTALL_PREFIX=install ^
   -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DOCR_OUTPUT=%BUILD_OUTPUT% ^
-  -DOCR_BUILD_CRT=%MT_ENABLED% ..
+  -DOCR_BUILD_CRT=%MT_ENABLED% -DOCR_ONNX=%ONNX_TYPE% ..
 cmake --build . --config %BUILD_TYPE% -j %NUMBER_OF_PROCESSORS%
 cmake --build . --config %BUILD_TYPE% --target install
 

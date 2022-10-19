@@ -43,10 +43,11 @@ int main(int argc, char **argv) {
     int flagDoAngle = 1;
     bool mostAngle = true;
     int flagMostAngle = 1;
+    int flagGpu = -1;
 
     int opt;
     int optionIndex = 0;
-    while ((opt = getopt_long(argc, argv, "d:1:2:3:4:i:t:p:s:b:o:u:a:A:v:h", long_options, &optionIndex)) != -1) {
+    while ((opt = getopt_long(argc, argv, "d:1:2:3:4:i:t:p:s:b:o:u:a:A:G:v:h", long_options, &optionIndex)) != -1) {
         //printf("option(-%c)=%s\n", opt, optarg);
         switch (opt) {
             case 'd':
@@ -123,6 +124,9 @@ int main(int argc, char **argv) {
             case 'h':
                 printHelp(stdout, argv[0]);
                 return 0;
+            case 'G':
+                flagGpu = (int) strtol(optarg, NULL, 10);
+                break;
             default:
                 printf("other option %c :%s\n", opt, optarg);
         }
@@ -160,10 +164,12 @@ int main(int argc, char **argv) {
             true);//isOutputResultImg
 
     ocrLite.enableResultTxt(imgDir.c_str(), imgName.c_str());
+    ocrLite.setGpuIndex(flagGpu);
     ocrLite.Logger("=====Input Params=====\n");
     ocrLite.Logger(
-            "numThread(%d),padding(%d),maxSideLen(%d),boxScoreThresh(%f),boxThresh(%f),unClipRatio(%f),doAngle(%d),mostAngle(%d)\n",
-            numThread, padding, maxSideLen, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+            "numThread(%d),padding(%d),maxSideLen(%d),boxScoreThresh(%f),boxThresh(%f),unClipRatio(%f),doAngle(%d),mostAngle(%d),GPU(%d)\n",
+            numThread, padding, maxSideLen, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle,
+            flagGpu);
 
     ocrLite.initModels(modelDetPath, modelClsPath, modelRecPath, keysPath);
 

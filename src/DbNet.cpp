@@ -1,7 +1,24 @@
 #include "DbNet.h"
 #include "OcrUtils.h"
 
-DbNet::DbNet() {}
+void DbNet::setGpuIndex(int gpuIndex) {
+#ifdef __CUDA__
+    if (gpuIndex >= 0) {
+        OrtCUDAProviderOptions cuda_options;
+        cuda_options.device_id = gpuIndex;
+        cuda_options.arena_extend_strategy = 0;
+        cuda_options.gpu_mem_limit = 2 * 1024 * 1024 * 1024;
+        cuda_options.cudnn_conv_algo_search = OrtCudnnConvAlgoSearch::OrtCudnnConvAlgoSearchExhaustive;
+        cuda_options.do_copy_in_default_stream = 1;
+
+        sessionOptions.AppendExecutionProvider_CUDA(cuda_options);
+        printf("det try to use GPU%d\n", gpuIndex);
+    }
+    else {
+        printf("det use CPU\n");
+    }
+#endif
+}
 
 DbNet::~DbNet() {
     delete session;

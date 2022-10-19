@@ -7,11 +7,11 @@
 
 class DbNet {
 public:
-    DbNet();
-
     ~DbNet();
 
     void setNumThread(int numOfThread);
+
+    void setGpuIndex(int gpuIndex);
 
     void initModel(const std::string &pathStr);
 

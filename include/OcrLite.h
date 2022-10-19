@@ -20,6 +20,8 @@ public:
 
     void enableResultTxt(const char *path, const char *imgName);
 
+    void setGpuIndex(int gpuIndex);
+
     bool initModels(const std::string &detPath, const std::string &clsPath,
                     const std::string &recPath, const std::string &keysPath);
 

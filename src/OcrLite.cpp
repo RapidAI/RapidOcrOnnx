@@ -29,6 +29,12 @@ void OcrLite::enableResultTxt(const char *path, const char *imgName) {
     resultTxt = fopen(resultTxtPath.c_str(), "w");
 }
 
+void OcrLite::setGpuIndex(int gpuIndex) {
+    dbNet.setGpuIndex(gpuIndex);
+    angleNet.setGpuIndex(-1);
+    crnnNet.setGpuIndex(gpuIndex);
+}
+
 bool OcrLite::initModels(const std::string &detPath, const std::string &clsPath,
                          const std::string &recPath, const std::string &keysPath) {
     Logger("=====Init Models=====\n");

@@ -16,6 +16,12 @@ option(OCR_BENCHMARK "build benchmark" ON)
 set(OCR_BENCHMARK ON)
 #set(OCR_OUTPUT "BIN")
 
+if (NOT DEFINED OCR_ONNX)
+    set(OCR_ONNX "CPU")
+    message(STATUS "No OCR_ONNX, defaulting to CPU")
+endif ()
+#set(OCR_OUTPUT "GPU")
+
 set(CMAKE_CXX_STANDARD 11)
 add_definitions(-DUNICODE -D_UNICODE)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -25,7 +31,11 @@ else ()
 endif ()
 
 # OnnxRuntime
-include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-static/OnnxRuntimeWrapper.cmake)
+if (OCR_ONNX STREQUAL "CPU")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-static/OnnxRuntimeWrapper.cmake)
+elseif (OCR_ONNX STREQUAL "CUDA") # CUDA
+    include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-gpu/OnnxRuntimeWrapper.cmake)
+endif ()
 find_package(OnnxRuntime REQUIRED)
 if (OnnxRuntime_FOUND)
     message(STATUS "OnnxRuntime_LIBS: ${OnnxRuntime_LIBS}")
@@ -85,6 +95,10 @@ if (OCR_OUTPUT STREQUAL "CLIB") # CLIB
     install(FILES ${OCR_INCLUDE} DESTINATION include)
 endif ()
 
+if (OCR_ONNX STREQUAL "CUDA")
+    target_compile_definitions(RapidOcrOnnx PRIVATE __CUDA__)
+endif ()
+
 # benchmark
 if (OCR_BENCHMARK AND (OCR_OUTPUT STREQUAL "BIN"))
     add_executable(benchmark benchmark/benchmark.cpp
@@ -98,6 +112,9 @@ if (OCR_BENCHMARK AND (OCR_OUTPUT STREQUAL "BIN"))
     target_link_libraries(benchmark ${OnnxRuntime_LIBS} ${OpenCV_LIBS})
     target_compile_definitions(benchmark PRIVATE __EXEC__)
 
+    if (OCR_ONNX STREQUAL "CUDA")
+        target_compile_definitions(benchmark PRIVATE __CUDA__)
+    endif ()
     install(TARGETS benchmark EXPORT benchmark
             ARCHIVE DESTINATION staticlib
             LIBRARY DESTINATION sharedlib

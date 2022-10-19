@@ -8,7 +8,7 @@
 * 把压缩包解压到项目根目录，windows平台需要注意目录层次，解压后目录结构如下
 * windows平台分为mt和md版，mt代表静态链接CRT，md代表动态链接CRT
 ```
-OcrLiteNcnn/opencv-static
+opencv-static
 ├── OpenCVWrapperConfig.cmake
 ├── linux
 ├── macos
@@ -24,7 +24,7 @@ OcrLiteNcnn/opencv-static
 * 把压缩包解压到项目根目录，windows平台需要注意目录层次，解压后目录结构如下
 * windows平台分为mt和md版，mt代表静态链接CRT，md代表动态链接CRT
 ```
-OcrLiteNcnn/onnxruntime-static
+onnxruntime-static
 ├── OnnxRuntimeWrapper.cmake
 ├── linux
 ├── macos
