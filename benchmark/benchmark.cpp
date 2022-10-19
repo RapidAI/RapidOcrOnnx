@@ -3,6 +3,7 @@
 #include "version.h"
 #include "OcrLite.h"
 #include "OcrUtils.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -164,29 +165,43 @@ int main(int argc, char **argv) {
 
     //ocrLite.enableResultTxt(imgDir.c_str(), imgName.c_str());
     printf("=====Input Params=====\n");
-    printf(
-            "numThread(%d),padding(%d),maxSideLen(%d),boxScoreThresh(%f),boxThresh(%f),unClipRatio(%f),doAngle(%d),mostAngle(%d)\n",
+    printf("numThread(%d),padding(%d),maxSideLen(%d),boxScoreThresh(%f),boxThresh(%f),unClipRatio(%f),doAngle(%d),mostAngle(%d)\n",
             numThread, padding, maxSideLen, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
-
-    ocrLite.initModels(modelDetPath, modelClsPath, modelRecPath, keysPath);
-    printf("=====warmup=====\n");
-    OcrResult result = ocrLite.detect(imgDir.c_str(), imgName.c_str(), padding, maxSideLen,
-                                      boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
-    printf("dbNetTime(%f) detectTime(%f)\n", result.dbNetTime, result.detectTime);
-    double dbTime = 0.0f;
-    double detectTime = 0.0f;
+    bool initModelsRet = ocrLite.initModels(modelDetPath, modelClsPath, modelRecPath, keysPath);
+    if (!initModelsRet) return -1;
+    printf("=====Warmup 2 cycles=====\n");
+    for (int i = 0; i < 2; ++i) {
+        OcrResult result = ocrLite.detect(imgDir.c_str(), imgName.c_str(), padding, maxSideLen,
+                                          boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+        printf("Warmup time(%f)\n", result.detectTime);
+    }
+    printf("=====Start Test Loop=====\n");
+    double allDbTime = 0.0f;
+    double allClsTime = 0.0f;
+    double allRecTime = 0.0f;
+    double allFullTime = 0.0f;
     for (int i = 0; i < loopCount; ++i) {
-        printf("=====loop:%d=====\n", i + 1);
+        printf("=====Cycle:%d Take Time(ms)=====\n", i + 1);
         OcrResult ocrResult = ocrLite.detect(imgDir.c_str(), imgName.c_str(),
                                              padding, maxSideLen,
                                              boxScoreThresh, boxThresh,
                                              unClipRatio, doAngle, mostAngle);
-        printf("dbNetTime(%f) detectTime(%f)\n", ocrResult.dbNetTime, ocrResult.detectTime);
-        dbTime += ocrResult.dbNetTime;
-        detectTime += ocrResult.detectTime;
+        double dbTime = ocrResult.dbNetTime;
+        double clsTime = 0.0f;
+        double recTime = 0.0f;
+        for (const auto &item: ocrResult.textBlocks) {
+            clsTime += item.angleTime;
+            recTime += item.crnnTime;
+        }
+        double fullTime = ocrResult.detectTime;
+        printf("det=%f cls=%f rec=%f full=%f\n", dbTime, clsTime, recTime, fullTime);
+        allDbTime += dbTime;
+        allClsTime += clsTime;
+        allRecTime += recTime;
+        allFullTime += fullTime;
     }
-    printf("=====result=====\n");
-    printf("average dbNetTime=%fms, average detectTime=%fms\n", dbTime / loopCount,
-           detectTime / loopCount);
+    printf("=====Result:Average Time(ms)=====\n");
+    printf("det=%f cls=%f rec=%f full=%f\n", allDbTime / loopCount, allClsTime / loopCount,
+           allRecTime / loopCount, allFullTime / loopCount);
     return 0;
 }
