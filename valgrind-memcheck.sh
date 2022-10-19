@@ -19,7 +19,7 @@ exit
 fi
 
 sysOS=`uname -s`
-EXE_PATH=${sysOS}-BIN
+EXE_PATH=${sysOS}-CPU-BIN
 
 ##### run test on MacOS or Linux
 valgrind --tool=memcheck --leak-check=full --leak-resolution=med --track-origins=yes --vgdb=no --log-file=valgrind-memcheck.txt \
@@ -36,4 +36,5 @@ valgrind --tool=memcheck --leak-check=full --leak-resolution=med --track-origins
 --boxThresh 0.3 \
 --unClipRatio 1.6 \
 --doAngle 1 \
---mostAngle 1
+--mostAngle 1 \
+--GPU -1

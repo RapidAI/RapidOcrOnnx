@@ -18,6 +18,9 @@ echo "找不到待识别的目标图片：${TARGET_IMG}，请打开本文件并�
 exit
 fi
 
+sysOS=`uname -s`
+EXE_PATH=${sysOS}-CPU-BIN
+
 ##### run test on MacOS or Linux
 valgrind --tool=massif --pages-as-heap=yes \
 ./${EXE_PATH}/RapidOcrOnnx --models models \

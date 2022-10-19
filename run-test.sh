@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
 function PrepareVar(){
-EXE_PATH=${sysOS}-BIN
+echo "onnxruntime: 1)CPU(默认), 2)GPU(cuda)"
+read -p "" ONNX_TYPE
+if [ $ONNX_TYPE == 1 ]; then
+  ONNX_TYPE="CPU"
+  GPU_INDEX=-1
+elif [ $ONNX_TYPE == 2 ]; then
+  ONNX_TYPE="CUDA"
+  GPU_INDEX=0
+else
+  echo -e "输入错误！Input Error!"
+fi
+EXE_PATH=${sysOS}-${ONNX_TYPE}-BIN
 }
 
 sysOS=`uname -s`
@@ -42,4 +53,5 @@ fi
 --boxThresh 0.3 \
 --unClipRatio 1.6 \
 --doAngle 1 \
---mostAngle 1
+--mostAngle 1 \
+--GPU $GPU_INDEX
