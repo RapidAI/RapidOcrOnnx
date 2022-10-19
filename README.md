@@ -58,6 +58,7 @@ RapidOcrOnnx/models
 ```
 
 ### [编译说明](./BUILD.md)
+### [GPU版附加说明](./onnxruntime-gpu/README.md)
 
 ### 测试说明
 

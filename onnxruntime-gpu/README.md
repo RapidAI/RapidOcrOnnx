@@ -1,6 +1,6 @@
-# 编译说明
+# GPU库整合说明
 
-### onnxruntime gpu(cuda下载)
+### onnxruntime-gpu(下载)
 
 1. [下载地址](https://github.com/microsoft/onnxruntime/releases)
 
@@ -64,10 +64,20 @@ onnxruntime-gpu
 
 ```
 
-2. CUDA和cuDNN
+### cuDNN安装指南
 
-* [CUDA下载地址](https://developer.nvidia.com/downloads)
-* 捷径 https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda_11.4.0_470.42.01_linux.run
-* [cuDNN下载地址](https://developer.nvidia.com/rdp/cudnn-archive)
+* 参考官方安装指南 https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html
+* windows系统还得下载 zlibwapidll [64位](http://www.winimage.com/zLibDll/zlib123dllx64.zip)
 * 根据onnxruntime官方文档https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html
 * onnxruntime v1.12，需要CUDA 11.4和cuDNN 8.2.4 (Linux) 8.2.2.26 (Windows)
+
+### cuDNN下载
+
+* [cuDNN下载地址](https://developer.nvidia.com/rdp/cudnn-archive)
+
+### CUDA下载
+
+* [CUDA下载地址](https://developer.nvidia.com/downloads)
+* windows捷径 https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda_11.4.0_471.11_win10.exe
+* Linux捷径 https://developer.download.nvidia.com/compute/cuda/11.4.0/local_installers/cuda_11.4.0_470.42.01_linux.run
+* 可以自定义安装，只需要选中CUDA下的Development和Runtime，其它可以不需勾选
