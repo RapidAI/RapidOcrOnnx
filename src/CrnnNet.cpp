@@ -78,7 +78,8 @@ inline static size_t argmax(ForwardIterator first, ForwardIterator last) {
 }
 
 TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, int h, int w) {
-    int keySize = keys.size();
+    auto keySize = keys.size();
+    auto dataSize = outputData.size();
     std::string strRes;
     std::vector<float> scores;
     int lastIndex = 0;
@@ -87,7 +88,10 @@ TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, int h, i
 
     for (int i = 0; i < h; i++) {
         int start = i * w;
-        int stop = (i + 1) * w - 1;
+        int stop = (i + 1) * w;
+        if (stop > dataSize - 1) {
+            stop = (i + 1) * w - 1;
+        }
         maxIndex = int(argmax(&outputData[start], &outputData[stop]));
         maxValue = float(*std::max_element(&outputData[start], &outputData[stop]));
 
