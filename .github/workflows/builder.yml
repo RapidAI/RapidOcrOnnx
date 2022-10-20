@@ -46,13 +46,13 @@ jobs:
           cp run-benchmark.sh linux-bin/run-benchmark.sh
           cp run-test.sh linux-bin/run-test.sh
           cp -r images linux-bin/images
-          mv Linux-BIN/install/bin linux-bin/Linux-BIN
+          mv Linux-CPU-BIN/install/bin linux-bin/Linux-CPU-BIN
           7z a linux-bin.7z linux-bin
           mkdir linux-jni
-          mv Linux-JNI/install linux-jni/Linux-JNI
+          mv Linux-CPU-JNI/install linux-jni/Linux-CPU-JNI
           7z a linux-jni.7z linux-jni
           mkdir linux-clib
-          mv Linux-CLIB/install linux-clib/Linux-CLIB
+          mv Linux-CPU-CLIB/install linux-clib/Linux-CPU-CLIB
           7z a linux-clib.7z linux-clib
 
       # 上传artifact
@@ -118,13 +118,13 @@ jobs:
           cp run-benchmark.sh macos-bin/run-benchmark.sh
           cp run-test.sh macos-bin/run-test.sh
           cp -r images macos-bin/images
-          mv Darwin-BIN/install/bin macos-bin/Darwin-BIN
+          mv Darwin-CPU-BIN/install/bin macos-bin/Darwin-CPU-BIN
           7z a macos-bin.7z macos-bin
           mkdir macos-jni
-          mv Darwin-JNI/install macos-jni/Darwin-JNI
+          mv Darwin-CPU-JNI/install macos-jni/Darwin-CPU-JNI
           7z a macos-jni.7z macos-jni
           mkdir macos-clib
-          mv Darwin-CLIB/install macos-clib/Darwin-CLIB
+          mv Darwin-CPU-CLIB/install macos-clib/Darwin-CPU-CLIB
           7z a macos-clib.7z macos-clib
 
       # 上传artifact
@@ -185,16 +185,16 @@ jobs:
           cp run-benchmark.bat windows-bin/run-benchmark.bat
           cp run-test.bat windows-bin/run-test.bat
           cp -r images windows-bin/images
-          mv win-BIN-x64/install/bin windows-bin/win-BIN-x64
-          mv win-BIN-Win32/install/bin windows-bin/win-BIN-Win32
+          mv win-BIN-CPU-x64/install/bin windows-bin/win-BIN-CPU-x64
+          mv win-BIN-CPU-Win32/install/bin windows-bin/win-BIN-CPU-Win32
           7z a windows-bin.7z windows-bin
           mkdir windows-jni
-          mv win-JNI-x64/install windows-jni/win-JNI-x64
-          mv win-JNI-Win32/install windows-jni/win-JNI-Win32
+          mv win-JNI-CPU-x64/install windows-jni/win-JNI-CPU-x64
+          mv win-JNI-CPU-Win32/install windows-jni/win-JNI-CPU-Win32
           7z a windows-jni.7z windows-jni
           mkdir windows-clib
-          mv win-CLIB-x64/install windows-clib/win-CLIB-x64
-          mv win-CLIB-Win32/install windows-clib/win-CLIB-Win32
+          mv win-CLIB-CPU-x64/install windows-clib/win-CLIB-CPU-x64
+          mv win-CLIB-CPU-Win32/install windows-clib/win-CLIB-CPU-Win32
           7z a windows-clib.7z windows-clib
 
       # 上传artifact
