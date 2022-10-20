@@ -46,13 +46,13 @@ jobs:
           cp run-benchmark.sh linux-bin/run-benchmark.sh
           cp run-test.sh linux-bin/run-test.sh
           cp -r images linux-bin/images
-          mv Linux-CPU-BIN/install/bin linux-bin/Linux-CPU-BIN
+          mv Linux-BIN-CPU/install/bin linux-bin/Linux-BIN-CPU
           7z a linux-bin.7z linux-bin
           mkdir linux-jni
-          mv Linux-CPU-JNI/install linux-jni/Linux-CPU-JNI
+          mv Linux-JNI-CPU/install linux-jni/Linux-JNI-CPU
           7z a linux-jni.7z linux-jni
           mkdir linux-clib
-          mv Linux-CPU-CLIB/install linux-clib/Linux-CPU-CLIB
+          mv Linux-CLIB-CPU/install linux-clib/Linux-CLIB-CPU
           7z a linux-clib.7z linux-clib
 
       # 上传artifact
@@ -118,13 +118,13 @@ jobs:
           cp run-benchmark.sh macos-bin/run-benchmark.sh
           cp run-test.sh macos-bin/run-test.sh
           cp -r images macos-bin/images
-          mv Darwin-CPU-BIN/install/bin macos-bin/Darwin-CPU-BIN
+          mv Darwin-BIN-CPU/install/bin macos-bin/Darwin-BIN-CPU
           7z a macos-bin.7z macos-bin
           mkdir macos-jni
-          mv Darwin-CPU-JNI/install macos-jni/Darwin-CPU-JNI
+          mv Darwin-JNI-CPU/install macos-jni/Darwin-JNI-CPU
           7z a macos-jni.7z macos-jni
           mkdir macos-clib
-          mv Darwin-CPU-CLIB/install macos-clib/Darwin-CPU-CLIB
+          mv Darwin-CLIB-CPU/install macos-clib/Darwin-CLIB-CPU
           7z a macos-clib.7z macos-clib
 
       # 上传artifact
