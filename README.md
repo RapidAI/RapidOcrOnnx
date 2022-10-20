@@ -45,6 +45,14 @@
 * 修复：scoreToTextLine方法索引越界问题
 * Windows控制台编码修改为UTF8
 
+#### 2021-10-20 update
+
+* 再次修复空格问题
+* 增加GPU(cuda)支持，需要自行下载整合依赖库
+* windows下的free()方法更焕为_aligned_free()
+* 修改默认输入参数
+* 修改benchmark输出样式
+
 ### 模型下载
 
 整合好的范例工程自带了模型，在models文件夹中
