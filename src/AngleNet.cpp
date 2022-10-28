@@ -82,7 +82,7 @@ Angle AngleNet::getAngle(cv::Mat &src) {
     std::vector<const char *> inputNames = {inputNamesPtr.data()->get()};
     std::vector<const char *> outputNames = {outputNamesPtr.data()->get()};
     auto outputTensor = session->Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensor,
-                                     inputNamesPtr.size(), outputNames.data(), outputNamesPtr.size());
+                                     inputNames.size(), outputNames.data(), outputNames.size());
     assert(outputTensor.size() == 1 && outputTensor.front().IsTensor());
     std::vector<int64_t> outputShape = outputTensor[0].GetTensorTypeAndShapeInfo().GetShape();
     int64_t outputCount = std::accumulate(outputShape.begin(), outputShape.end(), 1,
