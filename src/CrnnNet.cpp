@@ -24,22 +24,8 @@ void CrnnNet::setGpuIndex(int gpuIndex) {
 
 CrnnNet::~CrnnNet() {
     delete session;
-    for (auto name : inputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    inputNames.clear();
-    for (auto name : outputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    outputNames.clear();
+    inputNamesPtr.clear();
+    outputNamesPtr.clear();
 }
 
 void CrnnNet::setNumThread(int numOfThread) {
@@ -70,8 +56,8 @@ void CrnnNet::initModel(const std::string &pathStr, const std::string &keysPath)
 #else
     session = new Ort::Session(env, pathStr.c_str(), sessionOptions);
 #endif
-    inputNames = getInputNames(session);
-    outputNames = getOutputNames(session);
+    inputNamesPtr = getInputNames(session);
+    outputNamesPtr = getOutputNames(session);
 
     //load keys
     std::ifstream in(keysPath.c_str());
@@ -94,18 +80,18 @@ inline static size_t argmax(ForwardIterator first, ForwardIterator last) {
     return std::distance(first, std::max_element(first, last));
 }
 
-TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, int h, int w) {
+TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, size_t h, size_t w) {
     auto keySize = keys.size();
     auto dataSize = outputData.size();
     std::string strRes;
     std::vector<float> scores;
-    int lastIndex = 0;
-    int maxIndex;
+    size_t lastIndex = 0;
+    size_t maxIndex;
     float maxValue;
 
-    for (int i = 0; i < h; i++) {
-        int start = i * w;
-        int stop = (i + 1) * w;
+    for (size_t i = 0; i < h; i++) {
+        size_t start = i * w;
+        size_t stop = (i + 1) * w;
         if (stop > dataSize - 1) {
             stop = (i + 1) * w - 1;
         }
@@ -124,31 +110,23 @@ TextLine CrnnNet::scoreToTextLine(const std::vector<float> &outputData, int h, i
 TextLine CrnnNet::getTextLine(const cv::Mat &src) {
     float scale = (float) dstHeight / (float) src.rows;
     int dstWidth = int((float) src.cols * scale);
-
     cv::Mat srcResize;
     resize(src, srcResize, cv::Size(dstWidth, dstHeight));
-
     std::vector<float> inputTensorValues = substractMeanNormalize(srcResize, meanValues, normValues);
-
     std::array<int64_t, 4> inputShape{1, srcResize.channels(), srcResize.rows, srcResize.cols};
-
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
-
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(),
                                                              inputTensorValues.size(), inputShape.data(),
                                                              inputShape.size());
     assert(inputTensor.IsTensor());
-
+    std::vector<const char *> inputNames = {inputNamesPtr.data()->get()};
+    std::vector<const char *> outputNames = {outputNamesPtr.data()->get()};
     auto outputTensor = session->Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensor,
-                                     inputNames.size(), outputNames.data(), outputNames.size());
-
+                                     inputNamesPtr.size(), outputNames.data(), outputNamesPtr.size());
     assert(outputTensor.size() == 1 && outputTensor.front().IsTensor());
-
     std::vector<int64_t> outputShape = outputTensor[0].GetTensorTypeAndShapeInfo().GetShape();
-
     int64_t outputCount = std::accumulate(outputShape.begin(), outputShape.end(), 1,
                                           std::multiplies<int64_t>());
-
     float *floatArray = outputTensor.front().GetTensorMutableData<float>();
     std::vector<float> outputData(floatArray, floatArray + outputCount);
     return scoreToTextLine(outputData, outputShape[1], outputShape[2]);

@@ -84,7 +84,7 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     } else {
         resize = maxSideLen;
     }
-    resize += 2*padding;
+    resize += 2 * padding;
     cv::Rect paddingRect(padding, padding, originSrc.cols, originSrc.rows);
     cv::Mat paddingSrc = makePadding(originSrc, padding);
     ScaleParam scale = getScaleParam(paddingSrc, resize);
@@ -94,15 +94,14 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     return result;
 }
 
-OcrResult OcrLite::detect(const cv::Mat& mat, int padding, int maxSideLen, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle)
-{
+OcrResult OcrLite::detect(const cv::Mat &mat, int padding, int maxSideLen, float boxScoreThresh, float boxThresh,
+                          float unClipRatio, bool doAngle, bool mostAngle) {
     cv::Mat originSrc = mat;
     int originMaxSide = (std::max)(originSrc.cols, originSrc.rows);
     int resize;
     if (maxSideLen <= 0 || maxSideLen > originMaxSide) {
         resize = originMaxSide;
-    }
-    else {
+    } else {
         resize = maxSideLen;
     }
     resize += 2 * padding;
@@ -111,14 +110,14 @@ OcrResult OcrLite::detect(const cv::Mat& mat, int padding, int maxSideLen, float
     ScaleParam scale = getScaleParam(paddingSrc, resize);
     OcrResult result;
     result = detect(NULL, NULL, paddingSrc, paddingRect, scale,
-        boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+                    boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
     return result;
 }
 
 std::vector<cv::Mat> OcrLite::getPartImages(cv::Mat &src, std::vector<TextBox> &textBoxes,
                                             const char *path, const char *imgName) {
     std::vector<cv::Mat> partImages;
-    for (int i = 0; i < textBoxes.size(); ++i) {
+    for (size_t i = 0; i < textBoxes.size(); ++i) {
         cv::Mat partImg = getRotateCropImage(src, textBoxes[i].boxPoint);
         partImages.emplace_back(partImg);
         //OutPut DebugImg
@@ -149,7 +148,7 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     double dbNetTime = endDbNetTime - startTime;
     Logger("dbNetTime(%fms)\n", dbNetTime);
 
-    for (int i = 0; i < textBoxes.size(); ++i) {
+    for (size_t i = 0; i < textBoxes.size(); ++i) {
         Logger("TextBox[%d](+padding)[score(%f),[x: %d, y: %d], [x: %d, y: %d], [x: %d, y: %d], [x: %d, y: %d]]\n", i,
                textBoxes[i].score,
                textBoxes[i].boxPoint[0].x, textBoxes[i].boxPoint[0].y,
@@ -169,12 +168,12 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     angles = angleNet.getAngles(partImages, path, imgName, doAngle, mostAngle);
 
     //Log Angles
-    for (int i = 0; i < angles.size(); ++i) {
+    for (size_t i = 0; i < angles.size(); ++i) {
         Logger("angle[%d][index(%d), score(%f), time(%fms)]\n", i, angles[i].index, angles[i].score, angles[i].time);
     }
 
     //Rotate partImgs
-    for (int i = 0; i < partImages.size(); ++i) {
+    for (size_t i = 0; i < partImages.size(); ++i) {
         if (angles[i].index == 1) {
             partImages.at(i) = matRotateClockWise180(partImages[i]);
         }
@@ -183,10 +182,10 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     Logger("---------- step: crnnNet getTextLine ----------\n");
     std::vector<TextLine> textLines = crnnNet.getTextLines(partImages, path, imgName);
     //Log TextLines
-    for (int i = 0; i < textLines.size(); ++i) {
+    for (size_t i = 0; i < textLines.size(); ++i) {
         Logger("textLine[%d](%s)\n", i, textLines[i].text.c_str());
         std::ostringstream txtScores;
-        for (int s = 0; s < textLines[i].charScores.size(); ++s) {
+        for (size_t s = 0; s < textLines[i].charScores.size(); ++s) {
             if (s == 0) {
                 txtScores << textLines[i].charScores[s];
             } else {
@@ -198,7 +197,7 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     }
 
     std::vector<TextBlock> textBlocks;
-    for (int i = 0; i < textLines.size(); ++i) {
+    for (size_t i = 0; i < textLines.size(); ++i) {
         std::vector<cv::Point> boxPoint = std::vector<cv::Point>(4);
         int padding = originRect.x;//padding conversion
         boxPoint[0] = cv::Point(textBoxes[i].boxPoint[0].x - padding, textBoxes[i].boxPoint[0].y - padding);
@@ -232,8 +231,8 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
     }
 
     std::string strRes;
-    for (int i = 0; i < textBlocks.size(); ++i) {
-        strRes.append(textBlocks[i].text);
+    for (auto &textBlock: textBlocks) {
+        strRes.append(textBlock.text);
         strRes.append("\n");
     }
 

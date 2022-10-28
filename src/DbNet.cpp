@@ -22,22 +22,8 @@ void DbNet::setGpuIndex(int gpuIndex) {
 
 DbNet::~DbNet() {
     delete session;
-    for (auto name : inputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    inputNames.clear();
-    for (auto name : outputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    outputNames.clear();
+    inputNamesPtr.clear();
+    outputNamesPtr.clear();
 }
 
 void DbNet::setNumThread(int numOfThread) {
@@ -68,8 +54,8 @@ void DbNet::initModel(const std::string &pathStr) {
 #else
     session = new Ort::Session(env, pathStr.c_str(), sessionOptions);
 #endif
-    inputNames = getInputNames(session);
-    outputNames = getOutputNames(session);
+    inputNamesPtr = getInputNames(session);
+    outputNamesPtr = getOutputNames(session);
 }
 
 std::vector<TextBox> findRsBoxes(const cv::Mat &predMat, const cv::Mat &dilateMat, ScaleParam &s,
@@ -83,11 +69,11 @@ std::vector<TextBox> findRsBoxes(const cv::Mat &predMat, const cv::Mat &dilateMa
     cv::findContours(dilateMat, contours, hierarchy, cv::RETR_LIST,
                      cv::CHAIN_APPROX_SIMPLE);
 
-    int numContours = contours.size() >= maxCandidates ? maxCandidates : contours.size();
+    size_t numContours = contours.size() >= maxCandidates ? maxCandidates : contours.size();
 
     std::vector<TextBox> rsBoxes;
 
-    for (int i = 0; i < numContours; i++) {
+    for (size_t i = 0; i < numContours; i++) {
         if (contours[i].size() <= 2) {
             continue;
         }
@@ -117,9 +103,9 @@ std::vector<TextBox> findRsBoxes(const cv::Mat &predMat, const cv::Mat &dilateMa
 
         std::vector<cv::Point> intClipMinBoxes;
 
-        for (int p = 0; p < clipMinBoxes.size(); p++) {
-            float x = clipMinBoxes[p].x / s.ratioWidth;
-            float y = clipMinBoxes[p].y / s.ratioHeight;
+        for (auto &clipMinBox: clipMinBoxes) {
+            float x = clipMinBox.x / s.ratioWidth;
+            float y = clipMinBox.y / s.ratioHeight;
             int ptX = (std::min)((std::max)(int(x), 0), s.srcWidth - 1);
             int ptY = (std::min)((std::max)(int(y), 0), s.srcHeight - 1);
             cv::Point point{ptX, ptY};
@@ -142,8 +128,10 @@ DbNet::getTextBoxes(cv::Mat &src, ScaleParam &s, float boxScoreThresh, float box
                                                              inputTensorValues.size(), inputShape.data(),
                                                              inputShape.size());
     assert(inputTensor.IsTensor());
+    std::vector<const char *> inputNames = {inputNamesPtr.data()->get()};
+    std::vector<const char *> outputNames = {outputNamesPtr.data()->get()};
     auto outputTensor = session->Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensor,
-                                     inputNames.size(), outputNames.data(), outputNames.size());
+                                     inputNames.size(), outputNames.data(), 1);
     assert(outputTensor.size() == 1 && outputTensor.front().IsTensor());
     std::vector<int64_t> outputShape = outputTensor[0].GetTensorTypeAndShapeInfo().GetShape();
     int64_t outputCount = std::accumulate(outputShape.begin(), outputShape.end(), 1,
@@ -152,9 +140,9 @@ DbNet::getTextBoxes(cv::Mat &src, ScaleParam &s, float boxScoreThresh, float box
     std::vector<float> outputData(floatArray, floatArray + outputCount);
 
     //-----Data preparation-----
-    int outHeight = outputShape[2];
-    int outWidth = outputShape[3];
-    int area = outHeight * outWidth;
+    int outHeight = (int) outputShape[2];
+    int outWidth = (int) outputShape[3];
+    size_t area = outHeight * outWidth;
 
     std::vector<float> predData(area, 0.0);
     std::vector<unsigned char> cbufData(area, ' ');

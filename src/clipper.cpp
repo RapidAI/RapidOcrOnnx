@@ -718,7 +718,7 @@ namespace ClipperLib {
 
     inline void InitEdge(TEdge* e, TEdge* eNext, TEdge* ePrev, const IntPoint& Pt)
     {
-        std::memset(e, 0, sizeof(TEdge));
+        std::memset(static_cast<void*>(e), 0, sizeof(TEdge));
         e->Next = eNext;
         e->Prev = ePrev;
         e->Curr = Pt;

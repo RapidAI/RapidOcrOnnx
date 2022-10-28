@@ -23,22 +23,8 @@ void AngleNet::setGpuIndex(int gpuIndex) {
 
 AngleNet::~AngleNet() {
     delete session;
-    for (auto name : inputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    inputNames.clear();
-    for (auto name : outputNames) {
-#ifdef _WIN32
-        _aligned_free(name);
-#else
-        free(name);
-#endif
-    }
-    outputNames.clear();
+    inputNamesPtr.clear();
+    outputNamesPtr.clear();
 }
 
 void AngleNet::setNumThread(int numOfThread) {
@@ -69,14 +55,14 @@ void AngleNet::initModel(const std::string &pathStr) {
 #else
     session = new Ort::Session(env, pathStr.c_str(), sessionOptions);
 #endif
-    inputNames = getInputNames(session);
-    outputNames = getOutputNames(session);
+    inputNamesPtr = getInputNames(session);
+    outputNamesPtr = getOutputNames(session);
 }
 
 Angle scoreToAngle(const std::vector<float> &outputData) {
     int maxIndex = 0;
     float maxScore = 0;
-    for (int i = 0; i < outputData.size(); i++) {
+    for (size_t i = 0; i < outputData.size(); i++) {
         if (outputData[i] > maxScore) {
             maxScore = outputData[i];
             maxIndex = i;
@@ -86,28 +72,21 @@ Angle scoreToAngle(const std::vector<float> &outputData) {
 }
 
 Angle AngleNet::getAngle(cv::Mat &src) {
-
     std::vector<float> inputTensorValues = substractMeanNormalize(src, meanValues, normValues);
-
     std::array<int64_t, 4> inputShape{1, src.channels(), src.rows, src.cols};
-
     auto memoryInfo = Ort::MemoryInfo::CreateCpu(OrtDeviceAllocator, OrtMemTypeCPU);
-
     Ort::Value inputTensor = Ort::Value::CreateTensor<float>(memoryInfo, inputTensorValues.data(),
                                                              inputTensorValues.size(), inputShape.data(),
                                                              inputShape.size());
     assert(inputTensor.IsTensor());
-
+    std::vector<const char *> inputNames = {inputNamesPtr.data()->get()};
+    std::vector<const char *> outputNames = {outputNamesPtr.data()->get()};
     auto outputTensor = session->Run(Ort::RunOptions{nullptr}, inputNames.data(), &inputTensor,
-                                     inputNames.size(), outputNames.data(), outputNames.size());
-
+                                     inputNamesPtr.size(), outputNames.data(), outputNamesPtr.size());
     assert(outputTensor.size() == 1 && outputTensor.front().IsTensor());
-
     std::vector<int64_t> outputShape = outputTensor[0].GetTensorTypeAndShapeInfo().GetShape();
-
     int64_t outputCount = std::accumulate(outputShape.begin(), outputShape.end(), 1,
                                           std::multiplies<int64_t>());
-
     float *floatArray = outputTensor.front().GetTensorMutableData<float>();
     std::vector<float> outputData(floatArray, floatArray + outputCount);
     return scoreToAngle(outputData);
@@ -115,10 +94,10 @@ Angle AngleNet::getAngle(cv::Mat &src) {
 
 std::vector<Angle> AngleNet::getAngles(std::vector<cv::Mat> &partImgs, const char *path,
                                        const char *imgName, bool doAngle, bool mostAngle) {
-    int size = partImgs.size();
+    size_t size = partImgs.size();
     std::vector<Angle> angles(size);
     if (doAngle) {
-        for (int i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i) {
             double startAngle = getCurrentTime();
             cv::Mat angleImg;
             cv::resize(partImgs[i], angleImg, cv::Size(dstWidth, dstHeight));
@@ -135,7 +114,7 @@ std::vector<Angle> AngleNet::getAngles(std::vector<cv::Mat> &partImgs, const cha
             }
         }
     } else {
-        for (int i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i) {
             angles[i] = Angle{-1, 0.f};
         }
     }
@@ -151,7 +130,7 @@ std::vector<Angle> AngleNet::getAngles(std::vector<cv::Mat> &partImgs, const cha
             mostAngleIndex = 1;
         }
         //printf("Set All Angle to mostAngleIndex(%d)\n", mostAngleIndex);
-        for (int i = 0; i < angles.size(); ++i) {
+        for (size_t i = 0; i < angles.size(); ++i) {
             Angle angle = angles[i];
             angle.index = mostAngleIndex;
             angles.at(i) = angle;
