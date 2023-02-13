@@ -130,6 +130,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# macOS
+.DS_Store
+
 #idea
 .idea
 cmake-build-debug/
