@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-18.04
 
     env:
-      ONNX_VERSION: 1.13.1
-      ONNX_PKG_NAME: onnxruntime-1.13.1-ubuntu1804-static
+      ONNX_VERSION: 1.14.0
+      ONNX_PKG_NAME: onnxruntime-1.14.0-ubuntu1804-static
       CV_VERSION: 4.6.0
       CV_PKG_NAME: opencv-4.6.0-ubuntu1804
 
@@ -78,8 +78,8 @@ jobs:
     runs-on: macos-latest
 
     env:
-      ONNX_VERSION: 1.13.1
-      ONNX_PKG_NAME: onnxruntime-1.13.1-macos1015-static
+      ONNX_VERSION: 1.14.0
+      ONNX_PKG_NAME: onnxruntime-1.14.0-macos1015-static
       CV_VERSION: 4.6.0
       CV_PKG_NAME: opencv-4.6.0-macos1015
 
@@ -150,8 +150,8 @@ jobs:
     runs-on: windows-2019
 
     env:
-      ONNX_VERSION: 1.13.1
-      ONNX_PKG_NAME: onnxruntime-1.13.1-vs2019-static-mt
+      ONNX_VERSION: 1.14.0
+      ONNX_PKG_NAME: onnxruntime-1.14.0-vs2019-static-mt
       CV_VERSION: 4.6.0
       CV_PKG_NAME: opencv-4.6.0-windows-vs2019-mt
 
