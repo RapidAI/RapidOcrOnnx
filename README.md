@@ -29,23 +29,23 @@
 
 ### 更新说明
 
-#### 2022-10-15 update
+#### 2022-10-15 update v1.1.1
 
 * opencv 4.6.0
 * onnxruntime 1.12.1
 * windows支持mt版引用库
 * rec模型输入图片高度改为48
 
-#### 2022-10-16 update
+#### 2022-10-16 update v1.1.2
 
 * 修复：字典添加空格
 
-#### 2022-10-17 update
+#### 2022-10-17 update v1.1.3
 
 * 修复：scoreToTextLine方法索引越界问题
 * Windows控制台编码修改为UTF8
 
-#### 2022-10-20 update
+#### 2022-10-20 update v1.2.0
 
 * 再次修复空格问题
 * 增加GPU(cuda)支持，需要自行下载整合依赖库
@@ -53,12 +53,12 @@
 * 修改默认输入参数
 * 修改benchmark输出样式
 
-#### 2022-10-28 update
+#### 2022-10-28 update v1.2.1
 
 * 适配onnxruntime 1.13.1
 * 修了些warning
 
-#### 2023-02-13
+#### 2023-02-13 update v1.2.2
 
 * 适配onnxruntime 1.14.0
 
