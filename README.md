@@ -2,7 +2,10 @@
 
 ### 联系方式
 
-- QQ群号：1群：~887298230~ 已满，2群：~755960114~ 已满，3群：450338158
+- QQ1群：~887298230~ 已满，
+- QQ2群：~755960114~ 已满，
+- QQ3群：450338158
+- QQ4群：419196348
 
 ### Project下载
 
@@ -62,6 +65,11 @@
 
 * 适配onnxruntime 1.14.0
 
+#### 2024-01-07 update v1.2.3
+
+* onnxruntime 1.15.1
+* opencv 4.8.1
+
 ### 模型下载
 
 整合好的范例工程自带了模型，在models文件夹中
@@ -86,6 +94,14 @@ RapidOcrOnnx/models
 4. 终端运行run-benchmark.sh或命令行运行run-benchmark.bat，查看识别过程平均耗时.
 
 ### FAQ
+
+#### windows10下bat执行错误
+
+- 在win、linux、mac系统下，文本文件使用不同的换行符格式，win是CRLF，linux是LF，mac是CR
+- github的"Download ZIP"按钮下载的整个仓库代码，默认格式是UNIX换行符，此时bat脚本在windows平台执行会出错
+- 解决方法1：从Release中下载完整工程压缩包
+- 解决方法2：使用git clone命令同步仓库代码，git可以自动转换文件格式
+- 解决方法3：使用UltraEdit等文本编辑器，把bat文件的换行符转成win格式
 
 #### windows静态链接msvc
 

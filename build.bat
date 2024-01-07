@@ -41,7 +41,7 @@ else if %flag% == 2 (set ONNX_TYPE="CUDA")^
 else (echo 输入错误！Input Error!)
 echo.
 
-echo "VS版本: 1)vs2019-x64, 2)vs2019-x86"
+echo "VS版本: 1)vs2019-x64, 2)vs2019-x86, 3)vs2022-x64, 4)vs2022-x86"
 set BUILD_CMAKE_T="v142"
 set BUILD_CMAKE_A="x64"
 set /p flag=
@@ -51,6 +51,14 @@ if %flag% == 1 (
 )^
 else if %flag% == 2 (
     set BUILD_CMAKE_T="v142"
+    set BUILD_CMAKE_A="Win32"
+)^
+else if %flag% == 3 (
+    set BUILD_CMAKE_T="v143"
+    set BUILD_CMAKE_A="x64"
+)^
+else if %flag% == 4 (
+    set BUILD_CMAKE_T="v143"
     set BUILD_CMAKE_A="Win32"
 )^
 else (echo 输入错误！Input Error!)

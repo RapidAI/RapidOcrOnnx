@@ -2,9 +2,6 @@ name: Builder
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - '*'
 
 jobs:
   ubuntu1804:

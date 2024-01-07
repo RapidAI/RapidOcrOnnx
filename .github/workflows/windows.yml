@@ -1,0 +1,147 @@
+name: windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  windows:
+    strategy:
+      fail-fast: false
+      matrix:
+        list:
+          - { win_ver: 2019, vs_name: vs2019, vs_ver: v142 }
+          - { win_ver: 2022, vs_name: vs2022, vs_ver: v143 }
+
+    runs-on: windows-${{ matrix.list.win_ver }}
+
+    name: windows-${{ matrix.list.vs_name }}
+
+    env:
+      ONNX_VERSION: 1.15.1
+      ONNX_PKG_NAME: onnxruntime-1.15.1-windows-${{ matrix.list.vs_name }}-static-mt
+      CV_VERSION: 4.8.1
+      CV_PKG_NAME: opencv-4.8.1-windows-${{ matrix.list.vs_name }}-mt
+      BIN_PKG_NAME: windows-bin-${{ matrix.list.vs_name }}-mt
+      JNI_PKG_NAME: windows-jni-${{ matrix.list.vs_name }}-mt
+      CLIB_PKG_NAME: windows-clib-${{ matrix.list.vs_name }}-mt
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 下载onnxruntime-static
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          Invoke-WebRequest -Uri https://github.com/RapidAI/OnnxruntimeBuilder/releases/download/${{ env.ONNX_VERSION }}/${{ env.ONNX_PKG_NAME }}.7z -OutFile ${{ env.ONNX_PKG_NAME }}.7z
+          7z x ${{ env.ONNX_PKG_NAME }}.7z -aoa
+
+      # 下载opencv-static
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          Invoke-WebRequest -Uri https://github.com/RapidAI/OpenCVBuilder/releases/download/${{ env.CV_VERSION }}/${{ env.CV_PKG_NAME }}.7z -OutFile ${{ env.CV_PKG_NAME }}.7z
+          7z x ${{ env.CV_PKG_NAME }}.7z -aoa
+
+      # 编译
+      - name: build
+        run: |
+          ./build-default.bat ${{ matrix.list.vs_ver }}
+
+      # 压缩
+      - name: 7zip
+        run: |
+          mkdir ${{ env.BIN_PKG_NAME }}
+          cp run-benchmark.bat ${{ env.BIN_PKG_NAME }}/run-benchmark.bat
+          cp run-test.bat ${{ env.BIN_PKG_NAME }}/run-test.bat
+          cp -r images ${{ env.BIN_PKG_NAME }}/images
+          mv win-BIN-CPU-x64/install/bin ${{ env.BIN_PKG_NAME }}/win-BIN-CPU-x64
+          mv win-BIN-CPU-Win32/install/bin ${{ env.BIN_PKG_NAME }}/win-BIN-CPU-Win32
+          cp others/README-bin.txt ${{ env.BIN_PKG_NAME }}/README.txt
+          7z a ${{ env.BIN_PKG_NAME }}.7z ${{ env.BIN_PKG_NAME }}
+          mkdir ${{ env.JNI_PKG_NAME }}
+          mv win-JNI-CPU-x64/install ${{ env.JNI_PKG_NAME }}/win-JNI-CPU-x64
+          mv win-JNI-CPU-Win32/install ${{ env.JNI_PKG_NAME }}/win-JNI-CPU-Win32
+          cp others/README-jni.txt ${{ env.JNI_PKG_NAME }}/README.txt
+          7z a ${{ env.JNI_PKG_NAME }}.7z ${{ env.JNI_PKG_NAME }}
+          mkdir ${{ env.CLIB_PKG_NAME }}
+          mv win-CLIB-CPU-x64/install ${{ env.CLIB_PKG_NAME }}/win-CLIB-CPU-x64
+          mv win-CLIB-CPU-Win32/install ${{ env.CLIB_PKG_NAME }}/win-CLIB-CPU-Win32
+          cp others/README-clib.txt ${{ env.CLIB_PKG_NAME }}/README.txt
+          7z a ${{ env.CLIB_PKG_NAME }}.7z ${{ env.CLIB_PKG_NAME }}
+
+      # 上传artifact
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.BIN_PKG_NAME }}
+          path: ${{ env.BIN_PKG_NAME }}.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.JNI_PKG_NAME }}
+          path: ${{ env.JNI_PKG_NAME }}.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.CLIB_PKG_NAME }}
+          path: ${{ env.CLIB_PKG_NAME }}.7z
+
+  release:
+    needs: [ windows ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 获取所有的git log和tag
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      # 获取git log 从 previousTag 到 lastTag
+      - name: Get git log
+        id: git-log
+        run: |
+          previousTag=$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+          lastTag=$(git describe --abbrev=0 --tags)
+          echo "previousTag:$previousTag ~ lastTag:$lastTag"
+          log=$(git log $previousTag..$lastTag --pretty=format:'- %cd %an: %s\n' --date=format:'%Y-%m-%d %H:%M:%S')
+          echo "$log"
+          echo "log_state="$log"" >> $GITHUB_ENV
+
+      # 创建Changelog文件 triggered by git tag push
+      - name: Generate Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo -e '${{ env.log_state }}' > release.md
+
+      # 下载artifact
+      - name: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      # 查看artifact
+      - name: list artifact
+        run: |
+          tree artifacts
+
+      # 创建release 上传release
+      # https://github.com/marketplace/actions/create-release
+      - name: upload-windows
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: true
+          name: RapidOcrOnnx ${{ github.ref }}
+          bodyFile: release.md
+          artifacts: artifacts/*/*.7z
+          allowUpdates: true
+          artifactContentType: application/x-7z-compressed
+          token: ${{ secrets.GITHUB_TOKEN }}

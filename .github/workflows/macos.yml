@@ -1,0 +1,116 @@
+name: macos
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  macos:
+    runs-on: macos-latest
+
+    env:
+      ONNX_VERSION: 1.15.1
+      ONNX_PKG_NAME: onnxruntime-1.15.1-macos-static
+      CV_VERSION: 4.8.1
+      CV_PKG_NAME: opencv-4.8.1-macos
+      BIN_PKG_NAME: macos-bin
+      JNI_PKG_NAME: macos-jni
+      CLIB_PKG_NAME: macos-clib
+
+
+    steps:
+      # 检出代码
+      - uses: actions/checkout@v3
+
+      # 下载onnxruntime-static
+      - name: download onnxruntime-static
+        run: |
+          cd onnxruntime-static
+          wget https://github.com/RapidAI/OnnxruntimeBuilder/releases/download/${{ env.ONNX_VERSION }}/${{ env.ONNX_PKG_NAME }}.7z -O ${{ env.ONNX_PKG_NAME }}.7z
+          7z x ${{ env.ONNX_PKG_NAME }}.7z -aoa
+
+      # 下载opencv-static
+      - name: download opencv-static
+        run: |
+          cd opencv-static
+          wget https://github.com/RapidAI/OpenCVBuilder/releases/download/${{ env.CV_VERSION }}/${{ env.CV_PKG_NAME }}.7z -O ${{ env.CV_PKG_NAME }}.7z
+          7z x ${{ env.CV_PKG_NAME }}.7z -aoa
+
+      # 编译
+      - name: build
+        run: |
+          chmod a+x build-default.sh &&./build-default.sh
+
+      # 压缩
+      - name: 7z
+        run: |
+          mkdir ${{ env.BIN_PKG_NAME }}
+          cp run-benchmark.sh ${{ env.BIN_PKG_NAME }}/run-benchmark.sh
+          cp run-test.sh ${{ env.BIN_PKG_NAME }}/run-test.sh
+          cp -r images ${{ env.BIN_PKG_NAME }}/images
+          mv Darwin-BIN-CPU/install/bin ${{ env.BIN_PKG_NAME }}/Darwin-BIN-CPU
+          cp others/README-bin.txt ${{ env.BIN_PKG_NAME }}/README.txt
+          7z a ${{ env.BIN_PKG_NAME }}.7z ${{ env.BIN_PKG_NAME }}
+          mkdir ${{ env.JNI_PKG_NAME }}
+          mv Darwin-JNI-CPU/install ${{ env.JNI_PKG_NAME }}/Darwin-JNI-CPU
+          cp others/README-jni.txt ${{ env.JNI_PKG_NAME }}/README.txt
+          7z a ${{ env.JNI_PKG_NAME }}.7z ${{ env.JNI_PKG_NAME }}
+          mkdir ${{ env.CLIB_PKG_NAME }}
+          mv Darwin-CLIB-CPU/install ${{ env.CLIB_PKG_NAME }}/Darwin-CLIB-CPU
+          cp others/README-clib.txt ${{ env.CLIB_PKG_NAME }}/README.txt
+          7z a ${{ env.CLIB_PKG_NAME }}.7z ${{ env.CLIB_PKG_NAME }}
+
+      # 上传artifact
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.BIN_PKG_NAME }}
+          path: ${{ env.BIN_PKG_NAME }}.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.JNI_PKG_NAME }}
+          path: ${{ env.JNI_PKG_NAME }}.7z
+
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.CLIB_PKG_NAME }}
+          path: ${{ env.CLIB_PKG_NAME }}.7z
+
+      # 获取所有的git log和tag
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      # 获取git log 从 previousTag 到 lastTag
+      - name: Get git log
+        id: git-log
+        run: |
+          previousTag=$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
+          lastTag=$(git describe --abbrev=0 --tags)
+          echo "previousTag:$previousTag ~ lastTag:$lastTag"
+          log=$(git log $previousTag..$lastTag --pretty=format:'- %cd %an: %s\n' --date=format:'%Y-%m-%d %H:%M:%S')
+          echo "$log"
+          echo "log_state="$log"" >> $GITHUB_ENV
+
+      # 创建Changelog文件 triggered by git tag push
+      - name: Generate Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo -e '${{ env.log_state }}' > release.md
+
+      # 创建release 上传release
+      # https://github.com/marketplace/actions/create-release
+      - name: Create release and upload-archive
+        uses: ncipollo/release-action@v1
+        with:
+          prerelease: true
+          name: RapidOcrOnnx ${{ github.ref }}
+          bodyFile: release.md
+          artifacts: macos-*.7z
+          allowUpdates: true
+          artifactContentType: application/x-7z-compressed
+          token: ${{ secrets.GITHUB_TOKEN }}
