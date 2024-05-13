@@ -145,4 +145,51 @@ Java_com_benjaminwan_ocrlibrary_OcrEngine_detect(JNIEnv *env, jobject thiz, jstr
                                        boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
     return OcrResultUtils(env, result).getJObject();
 }
+
+extern "C" JNIEXPORT jobject JNICALL
+Java_com_benjaminwan_ocrlibrary_OcrEngine_detectInput(JNIEnv *env, jobject thiz, jobject input, jint padding,
+                                                              jint maxSideLen,
+                                                              jfloat boxScoreThresh, jfloat boxThresh, jfloat unClipRatio,
+                                                              jboolean doAngle, jboolean mostAngle
+) {
+    jclass ocrInputClass = env->GetObjectClass(input);
+    jfieldID dataFieldId = env->GetFieldID(ocrInputClass, "data", "[B");
+    jbyteArray javaDataArray = (jbyteArray) env->GetObjectField(input, dataFieldId);
+    jsize dataLength = env->GetArrayLength(javaDataArray);
+    jbyte *nativeData = env->GetByteArrayElements(javaDataArray, nullptr);
+
+    jfieldID typeFieldId = env->GetFieldID(ocrInputClass, "type", "I");
+    jint type = env->GetIntField(input, typeFieldId);
+
+    jfieldID widthFieldId = env->GetFieldID(ocrInputClass, "width", "I");
+    jint width = env->GetIntField(input, widthFieldId);
+
+    jfieldID heightFieldId = env->GetFieldID(ocrInputClass, "height", "I");
+    jint height = env->GetIntField(input, heightFieldId);
+
+    jfieldID channelFieldId = env->GetFieldID(ocrInputClass, "channels", "I");
+    jint channels = env->GetIntField(input, channelFieldId);
+
+    if (dataLength <= 0) {
+    fprintf(stderr, "data cannot be empty");
+    OcrResult result{};
+    return OcrResultUtils(env, result).getJObject();
+    }
+    OcrResult result;
+    //bitmap
+    if(type == 0){
+      if(channels == 0){
+        env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "When type is bitmap, the channel cannot be empty.");
+      }
+      result = ocrLite->detectBitmap(reinterpret_cast<uint8_t*>(nativeData), width, height, channels, padding, maxSideLen,
+                                   boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+    }
+    //file bytes
+    if(type == 1){
+      result = ocrLite->detectImageBytes(reinterpret_cast<uint8_t*>(nativeData), dataLength, channels >= 3 ? 0 :1, padding, maxSideLen,
+                         boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+    }
+    env->ReleaseByteArrayElements(javaDataArray, nativeData, JNI_ABORT);
+    return OcrResultUtils(env, result).getJObject();
+}
 #endif

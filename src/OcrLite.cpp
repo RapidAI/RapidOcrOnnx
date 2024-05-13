@@ -75,7 +75,6 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
                           const int padding, const int maxSideLen,
                           float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle) {
     std::string imgFile = getSrcImgFilePath(path, imgName);
-
     cv::Mat originSrc = imread(imgFile, cv::IMREAD_COLOR);//default : BGR
     int originMaxSide = (std::max)(originSrc.cols, originSrc.rows);
     int resize;
@@ -93,6 +92,37 @@ OcrResult OcrLite::detect(const char *path, const char *imgName,
                     boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
     return result;
 }
+
+
+OcrResult OcrLite::detectImageBytes(const uint8_t *data, const long dataLength, const int grey,
+                                    const int padding, const int maxSideLen,
+                                    float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle,
+                                    bool mostAngle) {
+    std::vector<uint8_t> vecData(data, data + dataLength);
+    cv::Mat originSrc = cv::imdecode(vecData, grey == 1 ? cv::IMREAD_GRAYSCALE : cv::IMREAD_COLOR);//default : BGR
+    OcrResult result;
+    result = detect(originSrc, padding, maxSideLen,
+                    boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+    return result;
+
+}
+
+OcrResult OcrLite::detectBitmap(uint8_t *bitmapData, int width, int height, int channels, int padding,
+                                int maxSideLen, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle,
+                                bool mostAngle) {
+
+    auto *originSrc = new cv::Mat(height, width, CV_8UC(channels), bitmapData);
+    if (channels > 3) {
+        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGBA2BGR);
+    } else if (channels == 3) {
+        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGB2BGR);
+    }
+    OcrResult result;
+    result = detect(*originSrc, padding, maxSideLen,
+                    boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
+    return result;
+}
+
 
 OcrResult OcrLite::detect(const cv::Mat &mat, int padding, int maxSideLen, float boxScoreThresh, float boxThresh,
                           float unClipRatio, bool doAngle, bool mostAngle) {
