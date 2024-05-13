@@ -35,6 +35,11 @@ public:
                      int padding, int maxSideLen,
                      float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle);
 
+    OcrResult detectImageBytes(const uint8_t *data, long dataLength, int grey, int padding, int maxSideLen,
+                               float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle);
+    OcrResult detectBitmap(uint8_t *bitmapData, int width, int height,int channels, int padding, int maxSideLen,
+                           float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle, bool mostAngle);
+
 private:
     bool isOutputConsole = false;
     bool isOutputPartImg = false;
