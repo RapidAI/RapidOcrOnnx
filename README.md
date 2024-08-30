@@ -32,6 +32,12 @@
 
 ### 更新说明
 
+#### 代码贡献者
+* configuration parameters for the number of IntraOp threads by https://github.com/Gmgge
+* 支持传入bitmap和image的二进制数据 by https://github.com/MyMonsterCat
+* Enhance ONNX Runtime GPU inference performance by https://github.com/Tryanks
+* Added DirectML GPU support by https://github.com/airchaoz
+
 #### 2022-10-15 update v1.1.1
 
 * opencv 4.6.0
