@@ -2,6 +2,10 @@
 #include "OcrUtils.h"
 #include <numeric>
 
+#ifdef __DIRECTML__
+#include <onnxruntime/core/providers/dml/dml_provider_factory.h>
+#endif
+
 void AngleNet::setGpuIndex(int gpuIndex) {
 #ifdef __CUDA__
     if (gpuIndex >= 0) {
@@ -13,6 +17,16 @@ void AngleNet::setGpuIndex(int gpuIndex) {
         cuda_options.do_copy_in_default_stream = 1;
 
         sessionOptions.AppendExecutionProvider_CUDA(cuda_options);
+        printf("cls try to use GPU%d\n", gpuIndex);
+    }
+    else {
+        printf("cls use CPU\n");
+    }
+#endif
+
+#ifdef __DIRECTML__
+    if (gpuIndex >= 0) {
+        OrtSessionOptionsAppendExecutionProvider_DML(sessionOptions, gpuIndex);
         printf("cls try to use GPU%d\n", gpuIndex);
     }
     else {

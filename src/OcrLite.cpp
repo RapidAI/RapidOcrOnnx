@@ -31,7 +31,7 @@ void OcrLite::enableResultTxt(const char *path, const char *imgName) {
 
 void OcrLite::setGpuIndex(int gpuIndex) {
     dbNet.setGpuIndex(gpuIndex);
-    angleNet.setGpuIndex(-1);
+    angleNet.setGpuIndex(gpuIndex);
     crnnNet.setGpuIndex(gpuIndex);
 }
 

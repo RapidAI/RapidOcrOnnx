@@ -33,11 +33,12 @@ if %flag% == 1 (
 else (set MT_ENABLED="False")
 echo.
 
-echo "onnxruntime: 1)CPU(默认), 2)GPU(cuda)"
+echo "onnxruntime: 1)CPU(默认), 2)GPU(cuda), 3)GPU(DirectML)"
 echo "注意：范例工程默认集成CPU版，CUDA版仅支持x64且需下载"
 set /p flag=
 if %flag% == 1 (set ONNX_TYPE="CPU")^
 else if %flag% == 2 (set ONNX_TYPE="CUDA")^
+else if %flag% == 3 (set ONNX_TYPE="DIRECTML")^
 else (echo 输入错误！Input Error!)
 echo.
 

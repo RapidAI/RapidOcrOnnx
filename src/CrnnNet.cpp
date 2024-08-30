@@ -3,6 +3,10 @@
 #include <fstream>
 #include <numeric>
 
+#ifdef __DIRECTML__
+#include <onnxruntime/core/providers/dml/dml_provider_factory.h>
+#endif
+
 void CrnnNet::setGpuIndex(int gpuIndex) {
 #ifdef __CUDA__
     if (gpuIndex >= 0) {
@@ -16,6 +20,16 @@ void CrnnNet::setGpuIndex(int gpuIndex) {
         sessionOptions.AppendExecutionProvider_CUDA(cuda_options);
         printf("rec try to use GPU%d\n", gpuIndex);
 }
+    else {
+        printf("rec use CPU\n");
+    }
+#endif
+
+#ifdef __DIRECTML__
+    if (gpuIndex >= 0) {
+        OrtSessionOptionsAppendExecutionProvider_DML(sessionOptions, gpuIndex);
+        printf("rec try to use GPU%d\n", gpuIndex);
+    }
     else {
         printf("rec use CPU\n");
     }

@@ -35,6 +35,8 @@ if (OCR_ONNX STREQUAL "CPU")
     include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-static/OnnxRuntimeWrapper.cmake)
 elseif (OCR_ONNX STREQUAL "CUDA") # CUDA
     include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-gpu/OnnxRuntimeWrapper.cmake)
+elseif (OCR_ONNX STREQUAL "DIRECTML") # DIRECTML
+    include(${CMAKE_CURRENT_SOURCE_DIR}/onnxruntime-DirectML/OnnxRuntimeWrapper.cmake)
 endif ()
 find_package(OnnxRuntime REQUIRED)
 if (OnnxRuntime_FOUND)
@@ -97,6 +99,8 @@ endif ()
 
 if (OCR_ONNX STREQUAL "CUDA")
     target_compile_definitions(RapidOcrOnnx PRIVATE __CUDA__)
+elseif(OCR_ONNX STREQUAL "DIRECTML")
+    target_compile_definitions(RapidOcrOnnx PRIVATE __DIRECTML__)
 endif ()
 
 # benchmark
