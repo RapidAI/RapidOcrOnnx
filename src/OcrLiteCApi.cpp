@@ -153,6 +153,20 @@ OcrDetectInput(OCR_HANDLE handle, OCR_INPUT *input, OCR_PARAM *pParam, OCR_RESUL
         return FALSE;
 }
 
+_QM_OCR_API OCR_BOOL
+OcrFreeResult(OCR_RESULT *result) {
+    if(result && result->textBlocksLength && result->textBlocks){
+        for(int i = 0; i < result->textBlocksLength; i++){
+            free(result->textBlocks[i].charScores);
+            free(result->textBlocks[i].text);
+            free(result->textBlocks[i].boxPoint);
+        }
+        free(result->textBlocks);
+        return true;
+    }
+    return false;
+}
+
 _QM_OCR_API int OcrGetLen(OCR_HANDLE handle) {
     OCR_OBJ *pOcrObj = (OCR_OBJ *) handle;
     if (!pOcrObj)
