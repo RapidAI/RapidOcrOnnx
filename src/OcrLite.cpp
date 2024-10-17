@@ -110,15 +110,14 @@ OcrResult OcrLite::detectImageBytes(const uint8_t *data, const long dataLength, 
 OcrResult OcrLite::detectBitmap(uint8_t *bitmapData, int width, int height, int channels, int padding,
                                 int maxSideLen, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle,
                                 bool mostAngle) {
-
-    auto *originSrc = new cv::Mat(height, width, CV_8UC(channels), bitmapData);
+    cv::Mat originSrc(height, width, CV_8UC(channels), bitmapData);
     if (channels > 3) {
-        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGBA2BGR);
+        cv::cvtColor(originSrc, originSrc, cv::COLOR_RGBA2BGR);
     } else if (channels == 3) {
-        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGB2BGR);
+        cv::cvtColor(originSrc, originSrc, cv::COLOR_RGB2BGR);
     }
     OcrResult result;
-    result = detect(*originSrc, padding, maxSideLen,
+    result = detect(originSrc, padding, maxSideLen,
                     boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
     return result;
 }
