@@ -49,7 +49,7 @@ private:
     DbNet dbNet;
     AngleNet angleNet;
     CrnnNet crnnNet;
-
+    char *loggerBuffer;
     std::vector<cv::Mat> getPartImages(cv::Mat &src, std::vector<TextBox> &textBoxes,
                                        const char *path, const char *imgName);
 

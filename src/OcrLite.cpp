@@ -2,12 +2,15 @@
 #include "OcrUtils.h"
 #include <stdarg.h> //windows&linux
 
-OcrLite::OcrLite() {}
+OcrLite::OcrLite() {
+    loggerBuffer = (char *)malloc(8192);
+}
 
 OcrLite::~OcrLite() {
     if (isOutputResultTxt) {
         fclose(resultTxt);
     }
+    free(loggerBuffer);
 }
 
 void OcrLite::setNumThread(int numOfThread) {
@@ -53,14 +56,13 @@ bool OcrLite::initModels(const std::string &detPath, const std::string &clsPath,
 
 void OcrLite::Logger(const char *format, ...) {
     if (!(isOutputConsole || isOutputResultTxt)) return;
-    char *buffer = (char *) malloc(8192);
+    memset(loggerBuffer, 0, 8192);
     va_list args;
     va_start(args, format);
-    vsprintf(buffer, format, args);
+    vsprintf(loggerBuffer, format, args);
     va_end(args);
-    if (isOutputConsole) printf("%s", buffer);
-    if (isOutputResultTxt) fprintf(resultTxt, "%s", buffer);
-    free(buffer);
+    if (isOutputConsole) printf("%s", loggerBuffer);
+    if (isOutputResultTxt) fprintf(resultTxt, "%s", loggerBuffer);
 }
 
 cv::Mat makePadding(cv::Mat &src, const int padding) {
