@@ -2,12 +2,15 @@
 #include "OcrUtils.h"
 #include <stdarg.h> //windows&linux
 
-OcrLite::OcrLite() {}
+OcrLite::OcrLite() {
+    loggerBuffer = (char *)malloc(8192);
+}
 
 OcrLite::~OcrLite() {
     if (isOutputResultTxt) {
         fclose(resultTxt);
     }
+    free(loggerBuffer);
 }
 
 void OcrLite::setNumThread(int numOfThread) {
@@ -53,14 +56,13 @@ bool OcrLite::initModels(const std::string &detPath, const std::string &clsPath,
 
 void OcrLite::Logger(const char *format, ...) {
     if (!(isOutputConsole || isOutputResultTxt)) return;
-    char *buffer = (char *) malloc(8192);
+    memset(loggerBuffer, 0, 8192);
     va_list args;
     va_start(args, format);
-    vsprintf(buffer, format, args);
+    vsprintf(loggerBuffer, format, args);
     va_end(args);
-    if (isOutputConsole) printf("%s", buffer);
-    if (isOutputResultTxt) fprintf(resultTxt, "%s", buffer);
-    free(buffer);
+    if (isOutputConsole) printf("%s", loggerBuffer);
+    if (isOutputResultTxt) fprintf(resultTxt, "%s", loggerBuffer);
 }
 
 cv::Mat makePadding(cv::Mat &src, const int padding) {
@@ -110,15 +112,14 @@ OcrResult OcrLite::detectImageBytes(const uint8_t *data, const long dataLength, 
 OcrResult OcrLite::detectBitmap(uint8_t *bitmapData, int width, int height, int channels, int padding,
                                 int maxSideLen, float boxScoreThresh, float boxThresh, float unClipRatio, bool doAngle,
                                 bool mostAngle) {
-
-    auto *originSrc = new cv::Mat(height, width, CV_8UC(channels), bitmapData);
+    cv::Mat originSrc(height, width, CV_8UC(channels), bitmapData);
     if (channels > 3) {
-        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGBA2BGR);
+        cv::cvtColor(originSrc, originSrc, cv::COLOR_RGBA2BGR);
     } else if (channels == 3) {
-        cv::cvtColor(*originSrc, *originSrc, cv::COLOR_RGB2BGR);
+        cv::cvtColor(originSrc, originSrc, cv::COLOR_RGB2BGR);
     }
     OcrResult result;
-    result = detect(*originSrc, padding, maxSideLen,
+    result = detect(originSrc, padding, maxSideLen,
                     boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle);
     return result;
 }

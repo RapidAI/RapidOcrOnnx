@@ -78,6 +78,9 @@ OcrDetect(OCR_HANDLE handle, const char *imgPath, const char *imgName, OCR_PARAM
 _QM_OCR_API OCR_BOOL
 OcrDetectInput(OCR_HANDLE handle, OCR_INPUT *input, OCR_PARAM *pParam, OCR_RESULT *ocrResult);
 
+_QM_OCR_API OCR_BOOL
+OcrFreeResult(OCR_RESULT *result);
+
 _QM_OCR_API int OcrGetLen(OCR_HANDLE handle);
 
 _QM_OCR_API OCR_BOOL OcrGetResult(OCR_HANDLE handle, char *szBuf, int nLen);
