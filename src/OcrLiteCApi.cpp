@@ -1,12 +1,12 @@
 #ifdef __CLIB__
 
 #include "OcrLiteCApi.h"
-#include "OcrLite.h"
+#include "OcrLiteImpl.h"
 
 extern "C"
 {
 typedef struct {
-    OcrLite OcrObj;
+    OcrLiteImpl OcrObj;
     std::string strRes;
 } OCR_OBJ;
 
@@ -195,4 +195,3 @@ _QM_OCR_API void OcrDestroy(OCR_HANDLE handle) {
 
 };
 #endif
-
