@@ -111,6 +111,7 @@ if (OCR_BENCHMARK AND (OCR_OUTPUT STREQUAL "BIN"))
             src/CrnnNet.cpp
             src/DbNet.cpp
             src/getopt.cpp
+            src/OcrLiteImpl.cpp
             src/OcrLite.cpp
             src/OcrUtils.cpp)
     target_link_libraries(benchmark ${OnnxRuntime_LIBS} ${OpenCV_LIBS})
