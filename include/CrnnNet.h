@@ -20,7 +20,7 @@ public:
 
 private:
     bool isOutputDebugImg = false;
-    Ort::Session *session;
+    Ort::Session *session = nullptr;
     Ort::Env env = Ort::Env(ORT_LOGGING_LEVEL_ERROR, "CrnnNet");
     Ort::SessionOptions sessionOptions = Ort::SessionOptions();
     int numThread = 0;

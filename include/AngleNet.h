@@ -22,7 +22,7 @@ public:
 private:
     bool isOutputAngleImg = false;
 
-    Ort::Session *session;
+    Ort::Session *session = nullptr;
     Ort::Env env = Ort::Env(ORT_LOGGING_LEVEL_ERROR, "AngleNet");
     Ort::SessionOptions sessionOptions = Ort::SessionOptions();
     int numThread = 0;
